@@ -12,11 +12,12 @@ required_apps = ["frappe", "lms"]
 web_include_js = "/assets/bank_pay/js/bank_pay.js"
 
 # --- Override LMS payment endpoint ---
-# When user clicks "Proceed to Payment" on the LMS billing page,
-# redirect them to our checkout page instead.
+# Layer 1: Frappe hook (may not work in all versions)
 override_whitelisted_method = {
     "lms.lms.payments.get_payment_link": "bank_pay.overrides.get_payment_link",
 }
+# Layer 2: Monkey-patch via before_request (guaranteed fallback)
+before_request = ["bank_pay.overrides.before_request"]
 
 # --- Website routes ---
 # www/bank-pay/ folder maps to /bank-pay/* URLs automatically
