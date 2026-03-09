@@ -20,7 +20,10 @@ override_whitelisted_method = {
 before_request = ["bank_pay.overrides.before_request"]
 
 # --- Website routes ---
-# www/bank-pay/ folder maps to /bank-pay/* URLs automatically
+website_route_rules = [
+    {"from_route": "/bank-pay/checkout/<course_name>", "to_route": "bank-pay/checkout"},
+    {"from_route": "/bank-pay/payhere-return/<order_name>", "to_route": "bank-pay/payhere-return"},
+]
 
 # --- Fixtures (export settings for easy migration) ---
 fixtures = [

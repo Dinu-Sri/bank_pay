@@ -7,9 +7,11 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/login?redirect-to=" + frappe.request.path
         raise frappe.Redirect
 
-    # Extract course name from path: /bank-pay/checkout/{course_name}
-    path_parts = frappe.request.path.strip("/").split("/")
-    course_name = path_parts[2] if len(path_parts) > 2 else None
+    # Extract course name from path or query param
+    course_name = frappe.form_dict.get("course_name")
+    if not course_name:
+        path_parts = frappe.request.path.strip("/").split("/")
+        course_name = path_parts[2] if len(path_parts) > 2 else None
 
     if not course_name:
         frappe.throw("Course not specified.", frappe.DoesNotExistError)
