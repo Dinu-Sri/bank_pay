@@ -11,6 +11,13 @@ required_apps = ["frappe", "lms"]
 # --- JS injection (single entry point) ---
 web_include_js = "/assets/bank_pay/js/bank_pay.js"
 
+# --- Override LMS payment endpoint ---
+# When user clicks "Proceed to Payment" on the LMS billing page,
+# redirect them to our checkout page instead.
+override_whitelisted_method = {
+    "lms.lms.payments.get_payment_link": "bank_pay.overrides.get_payment_link",
+}
+
 # --- Website routes ---
 website_route_rules = [
     {"from_route": "/bank-pay/<path:app_path>", "to_route": "bank_pay"},
