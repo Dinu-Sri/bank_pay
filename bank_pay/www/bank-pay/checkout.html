@@ -2,158 +2,333 @@
 
 {% block title %}Checkout — {{ course.title }}{% endblock %}
 
+{% block style %}
+<style>
+    .bp-container { max-width: 640px; margin: 0 auto; padding: 2rem 1rem; }
+    .bp-course-card {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+        padding: 1.25rem; margin-bottom: 1.5rem;
+        display: flex; align-items: center; gap: 1rem;
+    }
+    .bp-course-thumb {
+        width: 72px; height: 72px; border-radius: 8px;
+        object-fit: cover; flex-shrink: 0;
+    }
+    .bp-course-info h4 { margin: 0 0 0.25rem 0; font-size: 1.1rem; line-height: 1.3; }
+    .bp-price { font-size: 1.4rem; font-weight: 700; color: #2563eb; }
+
+    .bp-section-title {
+        font-size: 0.85rem; font-weight: 600; color: #64748b;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+    .bp-method-card {
+        background: #fff; border: 2px solid #e2e8f0; border-radius: 10px;
+        padding: 1rem 1.25rem; margin-bottom: 0.75rem; cursor: pointer;
+        display: flex; align-items: center; gap: 0.75rem;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .bp-method-card:hover { border-color: #93c5fd; }
+    .bp-method-card.selected { border-color: #2563eb; box-shadow: 0 0 0 1px #2563eb; }
+    .bp-method-icon { font-size: 1.5rem; flex-shrink: 0; width: 36px; text-align: center; }
+    .bp-method-label strong { display: block; font-size: 0.95rem; }
+    .bp-method-label span { font-size: 0.8rem; color: #64748b; }
+    .bp-method-check {
+        margin-left: auto; width: 20px; height: 20px;
+        border-radius: 50%; border: 2px solid #cbd5e1;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: all 0.15s;
+    }
+    .bp-method-card.selected .bp-method-check {
+        border-color: #2563eb; background: #2563eb;
+    }
+    .bp-method-card.selected .bp-method-check::after {
+        content: ""; width: 8px; height: 8px;
+        background: #fff; border-radius: 50%;
+    }
+
+    .bp-bank-details {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+        padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .bp-bank-details h5 {
+        margin: 0 0 1rem; font-size: 0.95rem; font-weight: 600;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .bp-bank-row {
+        display: flex; justify-content: space-between;
+        padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .bp-bank-row:last-child { border-bottom: none; }
+    .bp-bank-row .label { color: #64748b; font-size: 0.85rem; }
+    .bp-bank-row .value { font-weight: 600; font-size: 0.9rem; text-align: right; }
+
+    .bp-steps {
+        background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
+        padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .bp-steps h5 {
+        margin: 0 0 0.75rem; font-size: 0.9rem; font-weight: 600; color: #1e40af;
+    }
+    .bp-step {
+        display: flex; gap: 0.75rem; margin-bottom: 0.5rem;
+        font-size: 0.85rem; color: #334155;
+    }
+    .bp-step:last-child { margin-bottom: 0; }
+    .bp-step-num {
+        width: 22px; height: 22px; background: #2563eb; color: #fff;
+        border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 1px;
+    }
+
+    .bp-upload-box {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+        padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .bp-upload-box h5 {
+        margin: 0 0 1rem; font-size: 0.95rem; font-weight: 600;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .bp-upload-box label {
+        display: block; font-size: 0.85rem; font-weight: 500;
+        color: #475569; margin-bottom: 0.35rem;
+    }
+    .bp-upload-box .help { font-size: 0.78rem; color: #94a3b8; margin-top: 0.25rem; }
+    .bp-upload-box input[type="text"],
+    .bp-upload-box input[type="date"] {
+        width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db;
+        border-radius: 6px; font-size: 0.9rem; margin-bottom: 1rem;
+    }
+    .bp-file-drop {
+        border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem;
+        text-align: center; cursor: pointer; transition: border-color 0.2s;
+        background: #fafbfc;
+    }
+    .bp-file-drop:hover { border-color: #93c5fd; }
+    .bp-file-drop.has-file { border-color: #22c55e; background: #f0fdf4; }
+    .bp-file-drop .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .bp-file-drop .text { font-size: 0.85rem; color: #64748b; }
+    .bp-file-drop .filename { font-size: 0.85rem; color: #16a34a; font-weight: 600; }
+
+    .bp-btn-primary {
+        display: block; width: 100%; padding: 0.85rem; font-size: 1rem;
+        font-weight: 600; color: #fff; background: #111827;
+        border: none; border-radius: 8px; cursor: pointer;
+        transition: background 0.15s;
+    }
+    .bp-btn-primary:hover { background: #1f2937; }
+    .bp-btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+    .bp-btn-outline {
+        display: block; width: 100%; padding: 0.85rem; font-size: 1rem;
+        font-weight: 600; color: #2563eb; background: #fff;
+        border: 2px solid #2563eb; border-radius: 8px; cursor: pointer;
+        text-align: center; text-decoration: none;
+    }
+    .bp-btn-outline:hover { background: #eff6ff; }
+
+    .bp-pending-banner {
+        background: #fef9c3; border: 1px solid #fde047;
+        border-radius: 10px; padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start;
+    }
+    .bp-pending-banner .icon { font-size: 1.3rem; flex-shrink: 0; }
+    .bp-pending-banner .text { font-size: 0.9rem; color: #713f12; }
+    .bp-pending-banner .text strong { display: block; margin-bottom: 0.25rem; }
+
+    .bp-back-link {
+        display: block; text-align: center; margin-top: 1rem;
+        font-size: 0.85rem; color: #64748b; text-decoration: none;
+    }
+    .bp-back-link:hover { color: #2563eb; }
+</style>
+{% endblock %}
+
 {% block page_content %}
-<div class="container py-5" style="max-width: 720px;">
+<div class="bp-container">
+
+    <!-- Already Enrolled -->
+    {% if already_enrolled %}
+    <div style="text-align:center; padding: 3rem 1rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+        <h3 style="margin-bottom: 0.5rem;">You're already enrolled!</h3>
+        <p style="color: #64748b; margin-bottom: 1.5rem;">
+            You have access to <strong>{{ course.title }}</strong>. Start learning now.
+        </p>
+        <a href="/lms/courses/{{ course.name }}/learn/1-1"
+           class="bp-btn-primary" style="display:inline-block; width:auto; padding: 0.85rem 2rem; text-decoration:none;">
+            ▶ Continue Learning
+        </a>
+        <a href="/lms/courses/{{ course.name }}" class="bp-back-link" style="margin-top:1.5rem;">
+            ← Back to Course Page
+        </a>
+    </div>
+    {% else %}
 
     <!-- Course Summary -->
-    <div class="card mb-4">
-        <div class="card-body d-flex align-items-center">
-            {% if course.image %}
-            <img src="{{ course.image }}" alt="{{ course.title }}"
-                 class="rounded me-3" style="width:80px; height:80px; object-fit:cover;">
-            {% endif %}
-            <div>
-                <h5 class="mb-1">{{ course.title }}</h5>
-                <span class="h4 text-primary fw-bold">
-                    {{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}
-                </span>
-            </div>
+    <div class="bp-course-card">
+        {% if course.image %}
+        <img src="{{ course.image }}" alt="{{ course.title }}" class="bp-course-thumb">
+        {% endif %}
+        <div class="bp-course-info">
+            <h4>{{ course.title }}</h4>
+            <div class="bp-price">{{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}</div>
         </div>
     </div>
 
-    <!-- Already has pending order -->
+    <!-- Pending Order Banner -->
     {% if pending_order %}
-    <div class="alert alert-info">
-        <strong>You already have a pending order ({{ pending_order.name }}).</strong><br>
-        Payment method: <strong>{{ pending_order.payment_method }}</strong>.
-        {% if pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
-            Please upload your receipt below.
-        {% elif pending_order.payment_method == "Bank Transfer" and pending_order.receipt_image %}
-            Your receipt has been uploaded. Please wait for admin approval.
-        {% else %}
-            Please complete your PayHere payment.
-        {% endif %}
+    <div class="bp-pending-banner">
+        <div class="icon">⏳</div>
+        <div class="text">
+            {% if pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
+                <strong>Payment pending — please upload your receipt</strong>
+                You selected Bank Transfer. Complete your payment and upload the receipt below.
+            {% elif pending_order.payment_method == "Bank Transfer" and pending_order.receipt_image %}
+                <strong>Receipt uploaded — waiting for confirmation</strong>
+                We've received your receipt. You'll be enrolled once the admin confirms your payment.
+            {% else %}
+                <strong>Payment pending</strong>
+                Please complete your PayHere payment.
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 
     <!-- Payment Method Selection -->
     {% if not pending_order %}
-    <div class="mb-4">
-        <h6 class="text-muted mb-3">Choose Payment Method</h6>
+    <div class="bp-section-title">Choose Payment Method</div>
 
-        {% if enable_payhere %}
-        <div class="card mb-3 border payment-method-card" data-method="PayHere"
-             style="cursor:pointer;" id="method-payhere">
-            <div class="card-body d-flex align-items-center">
-                <div class="me-3">
-                    <span style="font-size:1.5rem;">💳</span>
-                </div>
-                <div>
-                    <strong>Pay with PayHere</strong>
-                    <div class="text-muted small">Credit/Debit Card, Mobile Banking</div>
-                </div>
-                <div class="ms-auto">
-                    <input type="radio" name="payment_method" value="PayHere" class="form-check-input">
-                </div>
-            </div>
+    {% if enable_payhere %}
+    <div class="bp-method-card" data-method="PayHere" id="method-payhere">
+        <div class="bp-method-icon">💳</div>
+        <div class="bp-method-label">
+            <strong>Pay with PayHere</strong>
+            <span>Credit/Debit Card, Mobile Banking</span>
         </div>
-        {% endif %}
-
-        {% if enable_bank_transfer %}
-        <div class="card mb-3 border payment-method-card" data-method="Bank Transfer"
-             style="cursor:pointer;" id="method-bank">
-            <div class="card-body d-flex align-items-center">
-                <div class="me-3">
-                    <span style="font-size:1.5rem;">🏦</span>
-                </div>
-                <div>
-                    <strong>Bank Transfer</strong>
-                    <div class="text-muted small">Manual bank deposit / online transfer</div>
-                </div>
-                <div class="ms-auto">
-                    <input type="radio" name="payment_method" value="Bank Transfer" class="form-check-input">
-                </div>
-            </div>
-        </div>
-        {% endif %}
+        <div class="bp-method-check"></div>
     </div>
     {% endif %}
 
-    <!-- Bank Transfer Details (shown after selection or for pending bank order) -->
+    {% if enable_bank_transfer %}
+    <div class="bp-method-card" data-method="Bank Transfer" id="method-bank">
+        <div class="bp-method-icon">🏦</div>
+        <div class="bp-method-label">
+            <strong>Bank Transfer</strong>
+            <span>Manual bank deposit / online transfer</span>
+        </div>
+        <div class="bp-method-check"></div>
+    </div>
+    {% endif %}
+
+    <div style="margin-bottom: 1.5rem;"></div>
+    {% endif %}
+
+    <!-- Bank Transfer Section -->
     <div id="bank-transfer-section" style="display:none;">
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <strong>Bank Account Details</strong>
+
+        <!-- Step-by-step instructions -->
+        <div class="bp-steps">
+            <h5>How to pay via Bank Transfer</h5>
+            <div class="bp-step">
+                <div class="bp-step-num">1</div>
+                <div>Transfer the exact amount to the bank account shown below.</div>
             </div>
-            <div class="card-body">
-                <table class="table table-borderless mb-0">
-                    <tr><td class="text-muted" style="width:140px;">Bank</td><td><strong>{{ bank_name }}</strong></td></tr>
-                    <tr><td class="text-muted">Account Name</td><td><strong>{{ account_name }}</strong></td></tr>
-                    <tr><td class="text-muted">Account No.</td><td><strong>{{ account_number }}</strong></td></tr>
-                    <tr><td class="text-muted">Branch</td><td><strong>{{ branch }}</strong></td></tr>
-                    <tr>
-                        <td class="text-muted">Amount</td>
-                        <td><strong>{{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}</strong></td>
-                    </tr>
-                </table>
-                {% if bank_instructions %}
-                <div class="mt-3 text-muted small">
-                    <em>{{ bank_instructions }}</em>
-                </div>
-                {% endif %}
+            <div class="bp-step">
+                <div class="bp-step-num">2</div>
+                <div>Take a screenshot or photo of your payment receipt / confirmation.</div>
+            </div>
+            <div class="bp-step">
+                <div class="bp-step-num">3</div>
+                <div>Upload the receipt below and click <strong>Submit</strong>.</div>
+            </div>
+            <div class="bp-step">
+                <div class="bp-step-num">4</div>
+                <div>You'll be enrolled once the admin confirms your payment (usually within a few hours).</div>
             </div>
         </div>
 
+        <!-- Bank Details -->
+        <div class="bp-bank-details">
+            <h5>🏦 Bank Account Details</h5>
+            <div class="bp-bank-row">
+                <span class="label">Bank</span>
+                <span class="value">{{ bank_name }}</span>
+            </div>
+            <div class="bp-bank-row">
+                <span class="label">Account Name</span>
+                <span class="value">{{ account_name }}</span>
+            </div>
+            <div class="bp-bank-row">
+                <span class="label">Account Number</span>
+                <span class="value">{{ account_number }}</span>
+            </div>
+            <div class="bp-bank-row">
+                <span class="label">Branch</span>
+                <span class="value">{{ branch }}</span>
+            </div>
+            <div class="bp-bank-row">
+                <span class="label">Amount to Transfer</span>
+                <span class="value" style="color:#2563eb;">{{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}</span>
+            </div>
+            {% if bank_instructions %}
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e2e8f0; font-size: 0.82rem; color: #64748b;">
+                💡 {{ bank_instructions }}
+            </div>
+            {% endif %}
+        </div>
+
         <!-- Receipt Upload -->
-        <div class="card mb-4" id="receipt-upload-card">
-            <div class="card-header bg-light">
-                <strong>Upload Payment Receipt</strong>
+        <div class="bp-upload-box" id="receipt-upload-card">
+            <h5>📤 Upload Payment Receipt</h5>
+
+            <label for="bank-reference">Bank Reference / Transaction ID</label>
+            <input type="text" id="bank-reference" placeholder="e.g. TXN1234567">
+            <div class="help" style="margin-top: -0.75rem; margin-bottom: 1rem;">
+                Enter the reference number from your bank transfer confirmation.
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Bank Reference / Transaction ID</label>
-                    <input type="text" class="form-control" id="bank-reference"
-                           placeholder="e.g. TXN1234567">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Transfer Date</label>
-                    <input type="date" class="form-control" id="transfer-date">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Receipt Screenshot</label>
-                    <input type="file" class="form-control" id="receipt-file" accept="image/*,.pdf">
-                    <div class="form-text">Upload a screenshot or photo of your payment receipt.</div>
-                </div>
+
+            <label for="transfer-date">Transfer Date</label>
+            <input type="date" id="transfer-date">
+
+            <label>Receipt Screenshot / Photo</label>
+            <div class="bp-file-drop" id="file-drop-zone">
+                <input type="file" id="receipt-file" accept="image/*,.pdf"
+                       style="position:absolute;opacity:0;width:0;height:0;">
+                <div class="icon">📎</div>
+                <div class="text">Click here to select your receipt image or PDF</div>
+                <div class="filename" id="file-name-display" style="display:none;"></div>
             </div>
+            <div class="help">Accepted: JPG, PNG, or PDF. Max 10MB.</div>
         </div>
     </div>
 
     <!-- Action Buttons -->
     <div id="action-area">
         {% if pending_order and pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
-            <button class="btn btn-primary btn-lg w-100" id="btn-upload-receipt"
+            <button class="bp-btn-primary" id="btn-upload-receipt"
                     data-order="{{ pending_order.name }}">
-                Upload Receipt
+                📤 Upload Receipt & Submit
             </button>
         {% elif pending_order and pending_order.payment_method == "PayHere" %}
-            <button class="btn btn-primary btn-lg w-100" id="btn-pay-payhere-existing"
+            <button class="bp-btn-primary" id="btn-pay-payhere-existing"
                     data-order="{{ pending_order.name }}">
-                Complete PayHere Payment
+                💳 Complete PayHere Payment
             </button>
         {% elif pending_order and pending_order.receipt_image %}
-            <a href="/bank-pay/my-payments" class="btn btn-outline-primary btn-lg w-100">
-                View My Payments
+            <a href="/bank-pay/my-payments" class="bp-btn-outline">
+                📋 View My Payments
             </a>
         {% else %}
-            <button class="btn btn-primary btn-lg w-100" id="btn-proceed" disabled>
+            <button class="bp-btn-primary" id="btn-proceed" disabled>
                 Proceed to Payment
             </button>
         {% endif %}
     </div>
 
-    <div class="text-center mt-3">
-        <a href="/lms/courses/{{ course.name }}" class="text-muted small">← Back to Course</a>
-    </div>
+    <a href="/lms/courses/{{ course.name }}" class="bp-back-link">← Back to Course</a>
+
+    {% endif %}
 </div>
 
 <script>
@@ -161,15 +336,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const courseName = "{{ course.name }}";
     let selectedMethod = null;
 
+    // --- File drop zone ---
+    var dropZone = document.getElementById("file-drop-zone");
+    var fileInput = document.getElementById("receipt-file");
+    var fileNameDisplay = document.getElementById("file-name-display");
+
+    if (dropZone && fileInput) {
+        dropZone.addEventListener("click", function () { fileInput.click(); });
+        fileInput.addEventListener("change", function () {
+            if (fileInput.files.length) {
+                dropZone.classList.add("has-file");
+                dropZone.querySelector(".icon").textContent = "✅";
+                dropZone.querySelector(".text").style.display = "none";
+                fileNameDisplay.textContent = fileInput.files[0].name;
+                fileNameDisplay.style.display = "block";
+            }
+        });
+    }
+
     // --- Payment method selection ---
-    document.querySelectorAll(".payment-method-card").forEach(function (card) {
+    document.querySelectorAll(".bp-method-card").forEach(function (card) {
         card.addEventListener("click", function () {
-            document.querySelectorAll(".payment-method-card").forEach(function (c) {
-                c.classList.remove("border-primary", "shadow-sm");
-                c.querySelector("input[type=radio]").checked = false;
+            document.querySelectorAll(".bp-method-card").forEach(function (c) {
+                c.classList.remove("selected");
             });
-            card.classList.add("border-primary", "shadow-sm");
-            card.querySelector("input[type=radio]").checked = true;
+            card.classList.add("selected");
             selectedMethod = card.dataset.method;
 
             var bankSection = document.getElementById("bank-transfer-section");
@@ -185,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // --- Auto-select if only one method ---
-    var cards = document.querySelectorAll(".payment-method-card");
+    var cards = document.querySelectorAll(".bp-method-card");
     if (cards.length === 1) {
         cards[0].click();
     }
@@ -213,10 +404,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (selectedMethod === "PayHere") {
                         initiatePayHere(order);
                     } else {
-                        // Bank transfer: show upload form, store order name
                         document.getElementById("action-area").innerHTML =
-                            '<button class="btn btn-primary btn-lg w-100" id="btn-upload-receipt" data-order="' +
-                            order + '">Upload Receipt</button>';
+                            '<button class="bp-btn-primary" id="btn-upload-receipt" data-order="' +
+                            order + '">📤 Upload Receipt & Submit</button>';
                         bindUploadButton();
                     }
                 },
@@ -236,7 +426,6 @@ document.addEventListener("DOMContentLoaded", function () {
             callback: function (r) {
                 if (!r.message) return;
                 var data = r.message;
-                // Create hidden form and submit to PayHere
                 var form = document.createElement("form");
                 form.method = "POST";
                 form.action = data.checkout_url;
@@ -275,21 +464,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!btn) return;
         btn.addEventListener("click", function () {
             var orderName = btn.dataset.order;
-            var fileInput = document.getElementById("receipt-file");
+            var fileEl = document.getElementById("receipt-file");
             var bankRef = document.getElementById("bank-reference");
             var transferDate = document.getElementById("transfer-date");
 
-            if (!fileInput || !fileInput.files.length) {
-                frappe.msgprint("Please select a receipt file.");
+            if (!fileEl || !fileEl.files.length) {
+                frappe.msgprint({
+                    title: "Missing Receipt",
+                    message: "Please click the upload area and select your payment receipt image or PDF.",
+                    indicator: "orange"
+                });
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = "Uploading...";
+            btn.textContent = "⏳ Uploading...";
 
-            // Upload file first using Frappe file API
             var formData = new FormData();
-            formData.append("file", fileInput.files[0]);
+            formData.append("file", fileEl.files[0]);
             formData.append("is_private", "1");
             formData.append("folder", "Home");
 
@@ -305,8 +497,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!data.message || !data.message.file_url) {
                     throw new Error("File upload failed");
                 }
-
-                // Now attach to order
                 return frappe.call({
                     method: "bank_pay.api.upload_receipt",
                     args: {
@@ -318,20 +508,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             })
             .then(function () {
-                frappe.msgprint({
-                    title: "Receipt Uploaded",
-                    message: "Your payment receipt has been submitted. You will be enrolled once the admin confirms your transfer.",
-                    indicator: "green",
-                    primary_action: {
-                        label: "View My Payments",
-                        action: function () { window.location.href = "/bank-pay/my-payments"; }
-                    }
-                });
+                document.getElementById("action-area").innerHTML =
+                    '<a href="/bank-pay/my-payments" class="bp-btn-outline">📋 View My Payments</a>';
+                document.getElementById("receipt-upload-card").innerHTML =
+                    '<div style="text-align:center; padding:2rem;">' +
+                    '<div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>' +
+                    '<h5 style="color:#16a34a;">Receipt Uploaded Successfully!</h5>' +
+                    '<p style="color:#64748b; font-size:0.9rem;">We\'ve received your receipt. You will be enrolled once the admin confirms your payment. This usually takes a few hours.</p>' +
+                    '</div>';
             })
             .catch(function (err) {
                 frappe.msgprint("Upload failed: " + (err.message || err));
                 btn.disabled = false;
-                btn.textContent = "Upload Receipt";
+                btn.textContent = "📤 Upload Receipt & Submit";
             });
         });
     }

@@ -30,8 +30,10 @@ def get_context(context):
         "LMS Enrollment", {"member": frappe.session.user, "course": course_name}
     )
     if enrolled:
-        frappe.local.flags.redirect_location = f"/lms/courses/{course_name}"
-        raise frappe.Redirect
+        context.no_cache = 1
+        context.already_enrolled = True
+        context.course = course
+        return
 
     # Check existing pending order
     pending_order = frappe.db.get_value(
