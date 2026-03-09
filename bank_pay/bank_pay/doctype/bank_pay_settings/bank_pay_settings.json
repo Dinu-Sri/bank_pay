@@ -1,0 +1,105 @@
+{
+    "name": "Bank Pay Settings",
+    "module": "Bank Pay",
+    "doctype": "DocType",
+    "document_type": "Setup",
+    "engine": "InnoDB",
+    "issingle": 1,
+    "track_changes": 1,
+    "fields": [
+        {
+            "fieldname": "general_section",
+            "fieldtype": "Section Break",
+            "label": "General"
+        },
+        {
+            "fieldname": "enable_bank_transfer",
+            "fieldtype": "Check",
+            "label": "Enable Bank Transfer",
+            "default": "1"
+        },
+        {
+            "fieldname": "enable_payhere",
+            "fieldtype": "Check",
+            "label": "Enable PayHere",
+            "default": "0"
+        },
+        {
+            "fieldname": "bank_transfer_section",
+            "fieldtype": "Section Break",
+            "label": "Bank Transfer Details",
+            "depends_on": "eval:doc.enable_bank_transfer"
+        },
+        {
+            "fieldname": "bank_name",
+            "fieldtype": "Data",
+            "label": "Bank Name"
+        },
+        {
+            "fieldname": "account_name",
+            "fieldtype": "Data",
+            "label": "Account Name"
+        },
+        {
+            "fieldname": "column_break_bank",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "account_number",
+            "fieldtype": "Data",
+            "label": "Account Number"
+        },
+        {
+            "fieldname": "branch",
+            "fieldtype": "Data",
+            "label": "Branch"
+        },
+        {
+            "fieldname": "bank_instructions",
+            "fieldtype": "Small Text",
+            "label": "Additional Instructions",
+            "description": "Shown to student on bank transfer page"
+        },
+        {
+            "fieldname": "payhere_section",
+            "fieldtype": "Section Break",
+            "label": "PayHere Settings",
+            "depends_on": "eval:doc.enable_payhere"
+        },
+        {
+            "fieldname": "payhere_merchant_id",
+            "fieldtype": "Data",
+            "label": "Merchant ID"
+        },
+        {
+            "fieldname": "payhere_secret",
+            "fieldtype": "Password",
+            "label": "Merchant Secret"
+        },
+        {
+            "fieldname": "column_break_payhere",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "payhere_sandbox",
+            "fieldtype": "Check",
+            "label": "Sandbox Mode (Testing)",
+            "default": "1",
+            "description": "Use PayHere sandbox for testing. Uncheck for live payments."
+        },
+        {
+            "fieldname": "payhere_currency",
+            "fieldtype": "Data",
+            "label": "Currency",
+            "default": "LKR"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1
+        }
+    ]
+}

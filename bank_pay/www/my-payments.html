@@ -1,0 +1,87 @@
+{% extends "templates/web.html" %}
+
+{% block title %}My Payments{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width: 800px;">
+    <h3 class="mb-4">My Payments</h3>
+
+    {% if not orders %}
+    <div class="text-center text-muted py-5">
+        <p>You have no payment orders yet.</p>
+        <a href="/lms/courses" class="btn btn-primary">Browse Courses</a>
+    </div>
+    {% else %}
+    <div class="list-group">
+        {% for order in orders %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1">{{ order.course_title or order.course }}</h6>
+                    <small class="text-muted">
+                        {{ order.name }} &middot;
+                        {{ frappe.utils.format_date(order.creation) }} &middot;
+                        {{ order.payment_method }}
+                    </small>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold">{{ order.currency }} {{ "%.2f"|format(order.amount|float) }}</div>
+                    {% if order.status == "Paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% elif order.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif order.status == "Rejected" %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% elif order.status == "Cancelled" %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                    {% elif order.status == "Expired" %}
+                        <span class="badge bg-secondary">Expired</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if order.status == "Pending" and order.payment_method == "Bank Transfer" and not order.receipt_image %}
+            <div class="mt-2">
+                <a href="/bank-pay/checkout/{{ order.course }}" class="btn btn-sm btn-outline-primary">
+                    Upload Receipt
+                </a>
+            </div>
+            {% endif %}
+
+            {% if order.status == "Pending" and order.payment_method == "Bank Transfer" and order.receipt_image %}
+            <div class="mt-2 text-muted small">
+                <em>Receipt uploaded. Waiting for admin confirmation.</em>
+            </div>
+            {% endif %}
+
+            {% if order.status == "Pending" and order.payment_method == "PayHere" %}
+            <div class="mt-2">
+                <a href="/bank-pay/checkout/{{ order.course }}" class="btn btn-sm btn-outline-primary">
+                    Complete Payment
+                </a>
+            </div>
+            {% endif %}
+
+            {% if order.status == "Paid" %}
+            <div class="mt-2">
+                <a href="/lms/courses/{{ order.course }}" class="btn btn-sm btn-success">
+                    Go to Course →
+                </a>
+            </div>
+            {% endif %}
+
+            {% if order.status == "Rejected" and order.admin_note %}
+            <div class="mt-2 alert alert-danger py-2 mb-0 small">
+                <strong>Reason:</strong> {{ order.admin_note }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="/lms/courses" class="text-muted small">← Browse Courses</a>
+    </div>
+</div>
+{% endblock %}

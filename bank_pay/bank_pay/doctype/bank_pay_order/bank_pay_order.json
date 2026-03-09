@@ -1,0 +1,189 @@
+{
+    "name": "Bank Pay Order",
+    "module": "Bank Pay",
+    "doctype": "DocType",
+    "document_type": "Document",
+    "engine": "InnoDB",
+    "naming_rule": "Expression",
+    "autoname": "BPO-.#####",
+    "title_field": "course_title",
+    "search_fields": "student,course,payment_method,status",
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "track_changes": 1,
+    "is_submittable": 0,
+    "fields": [
+        {
+            "fieldname": "order_section",
+            "fieldtype": "Section Break",
+            "label": "Order Details"
+        },
+        {
+            "fieldname": "student",
+            "fieldtype": "Link",
+            "label": "Student",
+            "options": "User",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "student_name",
+            "fieldtype": "Data",
+            "label": "Student Name",
+            "fetch_from": "student.full_name",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "course",
+            "fieldtype": "Link",
+            "label": "Course",
+            "options": "LMS Course",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "course_title",
+            "fieldtype": "Data",
+            "label": "Course Title",
+            "fetch_from": "course.title",
+            "read_only": 1
+        },
+        {
+            "fieldname": "payment_section",
+            "fieldtype": "Section Break",
+            "label": "Payment"
+        },
+        {
+            "fieldname": "payment_method",
+            "fieldtype": "Select",
+            "label": "Payment Method",
+            "options": "\nBank Transfer\nPayHere",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "label": "Amount",
+            "reqd": 1,
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "currency",
+            "fieldtype": "Data",
+            "label": "Currency",
+            "default": "LKR",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "label": "Status",
+            "options": "Pending\nPaid\nRejected\nCancelled\nExpired",
+            "default": "Pending",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1
+        },
+        {
+            "fieldname": "enrollment",
+            "fieldtype": "Link",
+            "label": "LMS Enrollment",
+            "options": "LMS Enrollment",
+            "read_only": 1
+        },
+        {
+            "fieldname": "bank_transfer_section",
+            "fieldtype": "Section Break",
+            "label": "Bank Transfer Details",
+            "depends_on": "eval:doc.payment_method=='Bank Transfer'"
+        },
+        {
+            "fieldname": "receipt_image",
+            "fieldtype": "Attach Image",
+            "label": "Payment Receipt"
+        },
+        {
+            "fieldname": "bank_reference",
+            "fieldtype": "Data",
+            "label": "Bank Reference / Transaction ID"
+        },
+        {
+            "fieldname": "transfer_date",
+            "fieldtype": "Date",
+            "label": "Transfer Date"
+        },
+        {
+            "fieldname": "payhere_section",
+            "fieldtype": "Section Break",
+            "label": "PayHere Details",
+            "depends_on": "eval:doc.payment_method=='PayHere'"
+        },
+        {
+            "fieldname": "payhere_order_id",
+            "fieldtype": "Data",
+            "label": "PayHere Order ID",
+            "read_only": 1
+        },
+        {
+            "fieldname": "payhere_payment_id",
+            "fieldtype": "Data",
+            "label": "PayHere Payment ID",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "payhere_status_code",
+            "fieldtype": "Data",
+            "label": "PayHere Status Code",
+            "read_only": 1
+        },
+        {
+            "fieldname": "admin_section",
+            "fieldtype": "Section Break",
+            "label": "Admin Notes"
+        },
+        {
+            "fieldname": "admin_note",
+            "fieldtype": "Small Text",
+            "label": "Admin Note"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "submit": 0,
+            "cancel": 0,
+            "amend": 0
+        },
+        {
+            "role": "LMS Student",
+            "read": 1,
+            "write": 0,
+            "create": 0,
+            "if_owner": 1
+        }
+    ]
+}

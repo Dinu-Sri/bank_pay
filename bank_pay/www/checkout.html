@@ -1,0 +1,342 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Checkout — {{ course.title }}{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width: 720px;">
+
+    <!-- Course Summary -->
+    <div class="card mb-4">
+        <div class="card-body d-flex align-items-center">
+            {% if course.image %}
+            <img src="{{ course.image }}" alt="{{ course.title }}"
+                 class="rounded me-3" style="width:80px; height:80px; object-fit:cover;">
+            {% endif %}
+            <div>
+                <h5 class="mb-1">{{ course.title }}</h5>
+                <span class="h4 text-primary fw-bold">
+                    {{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Already has pending order -->
+    {% if pending_order %}
+    <div class="alert alert-info">
+        <strong>You already have a pending order ({{ pending_order.name }}).</strong><br>
+        Payment method: <strong>{{ pending_order.payment_method }}</strong>.
+        {% if pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
+            Please upload your receipt below.
+        {% elif pending_order.payment_method == "Bank Transfer" and pending_order.receipt_image %}
+            Your receipt has been uploaded. Please wait for admin approval.
+        {% else %}
+            Please complete your PayHere payment.
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Payment Method Selection -->
+    {% if not pending_order %}
+    <div class="mb-4">
+        <h6 class="text-muted mb-3">Choose Payment Method</h6>
+
+        {% if enable_payhere %}
+        <div class="card mb-3 border payment-method-card" data-method="PayHere"
+             style="cursor:pointer;" id="method-payhere">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3">
+                    <span style="font-size:1.5rem;">💳</span>
+                </div>
+                <div>
+                    <strong>Pay with PayHere</strong>
+                    <div class="text-muted small">Credit/Debit Card, Mobile Banking</div>
+                </div>
+                <div class="ms-auto">
+                    <input type="radio" name="payment_method" value="PayHere" class="form-check-input">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if enable_bank_transfer %}
+        <div class="card mb-3 border payment-method-card" data-method="Bank Transfer"
+             style="cursor:pointer;" id="method-bank">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3">
+                    <span style="font-size:1.5rem;">🏦</span>
+                </div>
+                <div>
+                    <strong>Bank Transfer</strong>
+                    <div class="text-muted small">Manual bank deposit / online transfer</div>
+                </div>
+                <div class="ms-auto">
+                    <input type="radio" name="payment_method" value="Bank Transfer" class="form-check-input">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Bank Transfer Details (shown after selection or for pending bank order) -->
+    <div id="bank-transfer-section" style="display:none;">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <strong>Bank Account Details</strong>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr><td class="text-muted" style="width:140px;">Bank</td><td><strong>{{ bank_name }}</strong></td></tr>
+                    <tr><td class="text-muted">Account Name</td><td><strong>{{ account_name }}</strong></td></tr>
+                    <tr><td class="text-muted">Account No.</td><td><strong>{{ account_number }}</strong></td></tr>
+                    <tr><td class="text-muted">Branch</td><td><strong>{{ branch }}</strong></td></tr>
+                    <tr>
+                        <td class="text-muted">Amount</td>
+                        <td><strong>{{ course.currency or "LKR" }} {{ "%.2f"|format(course.course_price|float) }}</strong></td>
+                    </tr>
+                </table>
+                {% if bank_instructions %}
+                <div class="mt-3 text-muted small">
+                    <em>{{ bank_instructions }}</em>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Receipt Upload -->
+        <div class="card mb-4" id="receipt-upload-card">
+            <div class="card-header bg-light">
+                <strong>Upload Payment Receipt</strong>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Bank Reference / Transaction ID</label>
+                    <input type="text" class="form-control" id="bank-reference"
+                           placeholder="e.g. TXN1234567">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Transfer Date</label>
+                    <input type="date" class="form-control" id="transfer-date">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Receipt Screenshot</label>
+                    <input type="file" class="form-control" id="receipt-file" accept="image/*,.pdf">
+                    <div class="form-text">Upload a screenshot or photo of your payment receipt.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div id="action-area">
+        {% if pending_order and pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
+            <button class="btn btn-primary btn-lg w-100" id="btn-upload-receipt"
+                    data-order="{{ pending_order.name }}">
+                Upload Receipt
+            </button>
+        {% elif pending_order and pending_order.payment_method == "PayHere" %}
+            <button class="btn btn-primary btn-lg w-100" id="btn-pay-payhere-existing"
+                    data-order="{{ pending_order.name }}">
+                Complete PayHere Payment
+            </button>
+        {% elif pending_order and pending_order.receipt_image %}
+            <a href="/bank-pay/my-payments" class="btn btn-outline-primary btn-lg w-100">
+                View My Payments
+            </a>
+        {% else %}
+            <button class="btn btn-primary btn-lg w-100" id="btn-proceed" disabled>
+                Proceed to Payment
+            </button>
+        {% endif %}
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="/lms/courses/{{ course.name }}" class="text-muted small">← Back to Course</a>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const courseName = "{{ course.name }}";
+    let selectedMethod = null;
+
+    // --- Payment method selection ---
+    document.querySelectorAll(".payment-method-card").forEach(function (card) {
+        card.addEventListener("click", function () {
+            document.querySelectorAll(".payment-method-card").forEach(function (c) {
+                c.classList.remove("border-primary", "shadow-sm");
+                c.querySelector("input[type=radio]").checked = false;
+            });
+            card.classList.add("border-primary", "shadow-sm");
+            card.querySelector("input[type=radio]").checked = true;
+            selectedMethod = card.dataset.method;
+
+            var bankSection = document.getElementById("bank-transfer-section");
+            var btnProceed = document.getElementById("btn-proceed");
+
+            if (selectedMethod === "Bank Transfer") {
+                bankSection.style.display = "block";
+            } else {
+                bankSection.style.display = "none";
+            }
+            if (btnProceed) btnProceed.disabled = false;
+        });
+    });
+
+    // --- Auto-select if only one method ---
+    var cards = document.querySelectorAll(".payment-method-card");
+    if (cards.length === 1) {
+        cards[0].click();
+    }
+
+    // --- Show bank section for pending bank order needing receipt ---
+    {% if pending_order and pending_order.payment_method == "Bank Transfer" and not pending_order.receipt_image %}
+    document.getElementById("bank-transfer-section").style.display = "block";
+    {% endif %}
+
+    // --- Proceed button ---
+    var btnProceed = document.getElementById("btn-proceed");
+    if (btnProceed) {
+        btnProceed.addEventListener("click", function () {
+            if (!selectedMethod) return;
+            btnProceed.disabled = true;
+            btnProceed.textContent = "Processing...";
+
+            frappe.call({
+                method: "bank_pay.api.create_order",
+                args: { course_name: courseName, payment_method: selectedMethod },
+                callback: function (r) {
+                    if (!r.message) return;
+                    var order = r.message.order;
+
+                    if (selectedMethod === "PayHere") {
+                        initiatePayHere(order);
+                    } else {
+                        // Bank transfer: show upload form, store order name
+                        document.getElementById("action-area").innerHTML =
+                            '<button class="btn btn-primary btn-lg w-100" id="btn-upload-receipt" data-order="' +
+                            order + '">Upload Receipt</button>';
+                        bindUploadButton();
+                    }
+                },
+                error: function () {
+                    btnProceed.disabled = false;
+                    btnProceed.textContent = "Proceed to Payment";
+                }
+            });
+        });
+    }
+
+    // --- PayHere payment flow ---
+    function initiatePayHere(orderName) {
+        frappe.call({
+            method: "bank_pay.payhere.initiate_payment",
+            args: { order_name: orderName },
+            callback: function (r) {
+                if (!r.message) return;
+                var data = r.message;
+                // Create hidden form and submit to PayHere
+                var form = document.createElement("form");
+                form.method = "POST";
+                form.action = data.checkout_url;
+                Object.keys(data.form_data).forEach(function (key) {
+                    var input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = data.form_data[key];
+                    form.appendChild(input);
+                });
+                document.body.appendChild(form);
+                form.submit();
+            },
+            error: function () {
+                if (btnProceed) {
+                    btnProceed.disabled = false;
+                    btnProceed.textContent = "Proceed to Payment";
+                }
+            }
+        });
+    }
+
+    // --- Existing PayHere order: retry payment ---
+    var btnPayHereExisting = document.getElementById("btn-pay-payhere-existing");
+    if (btnPayHereExisting) {
+        btnPayHereExisting.addEventListener("click", function () {
+            btnPayHereExisting.disabled = true;
+            btnPayHereExisting.textContent = "Redirecting...";
+            initiatePayHere(btnPayHereExisting.dataset.order);
+        });
+    }
+
+    // --- Receipt upload ---
+    function bindUploadButton() {
+        var btn = document.getElementById("btn-upload-receipt");
+        if (!btn) return;
+        btn.addEventListener("click", function () {
+            var orderName = btn.dataset.order;
+            var fileInput = document.getElementById("receipt-file");
+            var bankRef = document.getElementById("bank-reference");
+            var transferDate = document.getElementById("transfer-date");
+
+            if (!fileInput || !fileInput.files.length) {
+                frappe.msgprint("Please select a receipt file.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Uploading...";
+
+            // Upload file first using Frappe file API
+            var formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("is_private", "1");
+            formData.append("folder", "Home");
+
+            fetch("/api/method/upload_file", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Frappe-CSRF-Token": frappe.csrf_token,
+                },
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.message || !data.message.file_url) {
+                    throw new Error("File upload failed");
+                }
+
+                // Now attach to order
+                return frappe.call({
+                    method: "bank_pay.api.upload_receipt",
+                    args: {
+                        order_name: orderName,
+                        receipt_file: data.message.file_url,
+                        bank_reference: bankRef ? bankRef.value : "",
+                        transfer_date: transferDate ? transferDate.value : "",
+                    }
+                });
+            })
+            .then(function () {
+                frappe.msgprint({
+                    title: "Receipt Uploaded",
+                    message: "Your payment receipt has been submitted. You will be enrolled once the admin confirms your transfer.",
+                    indicator: "green",
+                    primary_action: {
+                        label: "View My Payments",
+                        action: function () { window.location.href = "/bank-pay/my-payments"; }
+                    }
+                });
+            })
+            .catch(function (err) {
+                frappe.msgprint("Upload failed: " + (err.message || err));
+                btn.disabled = false;
+                btn.textContent = "Upload Receipt";
+            });
+        });
+    }
+
+    bindUploadButton();
+});
+</script>
+{% endblock %}

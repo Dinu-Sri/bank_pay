@@ -1,0 +1,10 @@
+include MANIFEST.in
+include requirements.txt
+include *.md
+include *.py
+include *.txt
+recursive-include bank_pay *.py
+recursive-include bank_pay *.json
+recursive-include bank_pay *.js
+recursive-include bank_pay *.css
+recursive-include bank_pay *.html

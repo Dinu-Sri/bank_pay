@@ -1,0 +1,63 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Payment Status{% endblock %}
+
+{% block page_content %}
+<div class="container py-5" style="max-width: 600px;">
+    {% if not order %}
+    <div class="text-center">
+        <h4>Order not found</h4>
+        <a href="/lms/courses" class="btn btn-primary mt-3">Browse Courses</a>
+    </div>
+    {% elif order.status == "Paid" %}
+    <div class="text-center">
+        <div style="font-size: 4rem;">✅</div>
+        <h3 class="mt-3">Payment Successful!</h3>
+        <p class="text-muted">
+            You have been enrolled in <strong>{{ order.course_title }}</strong>.
+        </p>
+        <a href="/lms/courses/{{ order.course }}" class="btn btn-primary btn-lg mt-3">
+            Start Learning →
+        </a>
+    </div>
+    {% else %}
+    <div class="text-center">
+        <div style="font-size: 4rem;">⏳</div>
+        <h3 class="mt-3">Payment Processing</h3>
+        <p class="text-muted">
+            Your payment for <strong>{{ order.course_title }}</strong> is being processed.
+            This may take a few moments.
+        </p>
+        <p class="text-muted small">Order: {{ order.name }}</p>
+        <a href="/bank-pay/my-payments" class="btn btn-outline-primary mt-3">
+            View My Payments
+        </a>
+    </div>
+
+    <!-- Auto-refresh to check status -->
+    <script>
+    (function() {
+        var checks = 0;
+        var maxChecks = 10;
+        var interval = setInterval(function() {
+            checks++;
+            if (checks >= maxChecks) {
+                clearInterval(interval);
+                return;
+            }
+            frappe.call({
+                method: "bank_pay.api.get_order",
+                args: { order_name: "{{ order.name }}" },
+                callback: function(r) {
+                    if (r.message && r.message.status === "Paid") {
+                        clearInterval(interval);
+                        window.location.reload();
+                    }
+                }
+            });
+        }, 3000);
+    })();
+    </script>
+    {% endif %}
+</div>
+{% endblock %}
