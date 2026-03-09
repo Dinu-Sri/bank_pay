@@ -108,6 +108,13 @@
             "read_only": 1
         },
         {
+            "fieldname": "lms_payment",
+            "fieldtype": "Link",
+            "label": "LMS Payment",
+            "options": "LMS Payment",
+            "read_only": 1
+        },
+        {
             "fieldname": "bank_transfer_section",
             "fieldtype": "Section Break",
             "label": "Bank Transfer Details",
