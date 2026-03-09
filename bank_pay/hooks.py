@@ -19,9 +19,7 @@ override_whitelisted_method = {
 }
 
 # --- Website routes ---
-website_route_rules = [
-    {"from_route": "/bank-pay/<path:app_path>", "to_route": "bank_pay"},
-]
+# www/bank-pay/ folder maps to /bank-pay/* URLs automatically
 
 # --- Fixtures (export settings for easy migration) ---
 fixtures = [
