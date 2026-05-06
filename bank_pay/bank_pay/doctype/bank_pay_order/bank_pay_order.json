@@ -94,7 +94,7 @@
             "fieldname": "status",
             "fieldtype": "Select",
             "label": "Status",
-            "options": "Pending\nPaid\nRejected\nCancelled\nExpired",
+            "options": "Pending\nPaid\nRejected\nCancelled\nChargeback\nExpired",
             "default": "Pending",
             "reqd": 1,
             "in_list_view": 1,
@@ -161,6 +161,20 @@
             "fieldname": "payhere_status_code",
             "fieldtype": "Data",
             "label": "PayHere Status Code",
+            "read_only": 1
+        },
+        {
+            "fieldname": "payhere_status_message",
+            "fieldtype": "Small Text",
+            "label": "PayHere Status Message",
+            "description": "Error or status message from PayHere (for customer support debugging)",
+            "read_only": 1
+        },
+        {
+            "fieldname": "payhere_method",
+            "fieldtype": "Data",
+            "label": "Payment Method Used",
+            "description": "e.g. VISA, MASTER, AMEX, MCASH, GENIE (from PayHere)",
             "read_only": 1
         },
         {

@@ -93,7 +93,7 @@ def notify(**kwargs):
     """
     Server-to-server callback from PayHere.
     PayHere POSTs: merchant_id, order_id, payhere_amount, payhere_currency,
-                   status_code, md5sig, payment_id, etc.
+                   status_code, md5sig, payment_id, status_message, method, etc.
     status_code: 2 = success, 0 = pending, -1 = canceled, -2 = failed, -3 = chargeback
     """
     form = frappe.form_dict
@@ -105,6 +105,8 @@ def notify(**kwargs):
     status_code = form.get("status_code", "")
     merchant_id = form.get("merchant_id", "")
     md5sig = form.get("md5sig", "")
+    status_message = form.get("status_message", "")
+    payment_method = form.get("method", "")
 
     if not order_id or not frappe.db.exists("Bank Pay Order", order_id):
         frappe.log_error(
@@ -140,13 +142,35 @@ def notify(**kwargs):
     order = frappe.get_doc("Bank Pay Order", order_id)
     order.payhere_payment_id = payment_id
     order.payhere_status_code = status_code
+    order.payhere_status_message = status_message
+    order.payhere_method = payment_method
     order.payhere_order_id = form.get("order_id", "")
 
+    # Set status based on PayHere status code
     if str(status_code) == "2":
         # Payment successful
         order.status = "Paid"
-    elif str(status_code) in ("-1", "-2", "-3"):
+    elif str(status_code) == "-1":
+        # Customer canceled the payment
         order.status = "Cancelled"
+        frappe.log_error(
+            message=f"Order {order_id}: Payment cancelled by customer. Message: {status_message}",
+            title="Bank Pay - PayHere Cancelled",
+        )
+    elif str(status_code) == "-2":
+        # Payment failed
+        order.status = "Rejected"
+        frappe.log_error(
+            message=f"Order {order_id}: Payment failed. Method: {payment_method}. Message: {status_message}",
+            title="Bank Pay - PayHere Failed",
+        )
+    elif str(status_code) == "-3":
+        # Payment chargedback/disputed
+        order.status = "Chargeback"
+        frappe.log_error(
+            message=f"Order {order_id}: Chargeback detected. Message: {status_message}",
+            title="Bank Pay - PayHere Chargeback",
+        )
     # status_code 0 = pending, leave as is
 
     order.save(ignore_permissions=True)
