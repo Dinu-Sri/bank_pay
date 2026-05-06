@@ -69,7 +69,7 @@ def initiate_payment(order_name):
         "checkout_url": checkout_url,
         "form_data": {
             "merchant_id": merchant_id,
-            "return_url": f"{site_url}/bank-pay/payhere-return?order={order.name}",
+            "return_url": f"{site_url}/bank-pay/payhere-return/{order.name}",
             "cancel_url": f"{site_url}/bank-pay/checkout/{order.course}",
             "notify_url": f"{site_url}/api/method/bank_pay.payhere.notify",
             "order_id": order.name,

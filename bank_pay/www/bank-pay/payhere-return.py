@@ -9,7 +9,7 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/login"
         raise frappe.Redirect
 
-    order_name = frappe.form_dict.get("order")
+    order_name = frappe.form_dict.get("order_name")
     if not order_name or not frappe.db.exists("Bank Pay Order", order_name):
         context.order = None
         return
