@@ -54,6 +54,7 @@ def _bank_pay_get_payment_link(_original, **kwargs):
                     "payment_for_document_type": doctype,
                     "payment_for_document": docname,
                 })
+                payment.flags.ignore_mandatory = True
                 payment.insert(ignore_permissions=True)
                 frappe.db.commit()
             except Exception:
