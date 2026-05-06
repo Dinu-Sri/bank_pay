@@ -26,12 +26,20 @@ def get_context(context):
         as_dict=True,
     )
 
+    # Some payment-return flows may arrive with a valid order but a session
+    # user mismatch (e.g., auth/session edge cases after external redirect).
+    # Do not hard-fail to "Order not found" if the order exists.
     if order.student != frappe.session.user:
-        context.order = None
-        return
+        frappe.log_error(
+            message=(
+                f"PayHere return user mismatch: order={order_name}, "
+                f"order.student={order.student}, session.user={frappe.session.user}"
+            ),
+            title="Bank Pay - PayHere Return User Mismatch",
+        )
 
-    # Redirect to payment-failed page if order is cancelled
-    if order.status == "Cancelled":
+    # Redirect to payment-failed page for all non-success terminal states.
+    if order.status in ("Cancelled", "Rejected", "Chargeback"):
         frappe.local.flags.redirect_location = f"/bank-pay/payment-failed/{order_name}"
         raise frappe.Redirect
 

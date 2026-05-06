@@ -26,8 +26,13 @@ def get_context(context):
     )
 
     if order.student != frappe.session.user:
-        context.order = None
-        return
+        frappe.log_error(
+            message=(
+                f"Payment failed page user mismatch: order={order_name}, "
+                f"order.student={order.student}, session.user={frappe.session.user}"
+            ),
+            title="Bank Pay - Payment Failed User Mismatch",
+        )
 
     context.order = order
     context.support_email = "edu@sltaxsolution.lk"
