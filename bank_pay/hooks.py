@@ -23,6 +23,7 @@ before_request = ["bank_pay.overrides.before_request"]
 website_route_rules = [
     {"from_route": "/bank-pay/checkout/<course_name>", "to_route": "bank-pay/checkout"},
     {"from_route": "/bank-pay/payhere-return/<order_name>", "to_route": "bank-pay/payhere-return"},
+    {"from_route": "/bank-pay/payment-failed/<order_name>", "to_route": "bank-pay/payment-failed"},
 ]
 
 # --- Fixtures (export settings for easy migration) ---

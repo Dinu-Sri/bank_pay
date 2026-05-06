@@ -25,9 +25,7 @@ def get_context(context):
         context.order = None
         return
 
-    # Redirect to payment-failed page if order is cancelled
-    if order.status == "Cancelled":
-        frappe.local.flags.redirect_location = f"/bank-pay/payment-failed/{order_name}"
-        raise frappe.Redirect
-
     context.order = order
+    context.support_email = "edu@sltaxsolution.lk"
+    context.support_whatsapp = "+94 77 400 4879"
+    context.support_phone = "+94 34 221 5393"
