@@ -33,12 +33,49 @@ def get_context(context):
         raise frappe.Redirect
 
     order_name = _extract_order_name()
+
+    # Diagnostic info — always pass to template
+    context.debug_info = {
+        "resolved_order_name": order_name,
+        "form_dict": dict(frappe.form_dict),
+        "path": getattr(getattr(frappe, "request", None), "path", ""),
+        "session_user": frappe.session.user,
+    }
+
+    # Try fallbacks if direct lookup fails
+    if order_name and not frappe.db.exists("Bank Pay Order", order_name):
+        # Fallback 1: search by payhere_order_id field
+        alt = frappe.db.get_value(
+            "Bank Pay Order",
+            {"payhere_order_id": order_name},
+            "name",
+        )
+        if alt:
+            order_name = alt
+            context.debug_info["found_via"] = "payhere_order_id"
+        else:
+            # Fallback 2: most recent PayHere order for this user
+            recent = frappe.db.get_all(
+                "Bank Pay Order",
+                filters={
+                    "student": frappe.session.user,
+                    "payment_method": "PayHere",
+                },
+                fields=["name"],
+                order_by="creation desc",
+                limit_page_length=1,
+            )
+            if recent:
+                order_name = recent[0].name
+                context.debug_info["found_via"] = "recent_user_order"
+
     if not order_name or not frappe.db.exists("Bank Pay Order", order_name):
         frappe.log_error(
             message=(
                 f"PayHere return order not found. resolved_order={order_name}, "
                 f"form_dict={dict(frappe.form_dict)}, "
-                f"path={getattr(getattr(frappe, 'request', None), 'path', '')}"
+                f"path={getattr(getattr(frappe, 'request', None), 'path', '')}, "
+                f"session_user={frappe.session.user}"
             ),
             title="Bank Pay - PayHere Return Order Lookup",
         )

@@ -9,6 +9,13 @@
         <h4>Order not found</h4>
         <a href="/lms/courses" class="btn btn-primary mt-3">Browse Courses</a>
     </div>
+    {% if debug_info %}
+    <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; font-size: 0.85rem; text-align: left;">
+        <strong>🔍 Debug Information:</strong>
+        <pre style="margin-top: 0.5rem; white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;">{{ debug_info | tojson }}</pre>
+        <p style="margin-top: 0.5rem; color: #856404; font-size: 0.8rem;">Please share this with support if you see this page.</p>
+    </div>
+    {% endif %}
     {% elif order.status == "Paid" %}
     <div class="text-center">
         <div style="font-size: 4rem;">✅</div>
