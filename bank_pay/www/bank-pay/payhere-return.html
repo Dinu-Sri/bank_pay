@@ -4,10 +4,16 @@
 
 {% block page_content %}
 <div class="container py-5" style="max-width: 600px;">
+    <!-- BANK_PAY_TEMPLATE_VERSION_V3 -->
     {% if not order %}
     <div class="text-center">
-        <h4>Order not found</h4>
+        <h4>Order not found [v3]</h4>
+        <p style="color:#999;font-size:0.75rem;">Template: bank_pay/www/bank-pay/payhere-return.html</p>
         <a href="/lms/courses" class="btn btn-primary mt-3">Browse Courses</a>
+    </div>
+    <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; font-size: 0.85rem; text-align: left;">
+        <strong>Debug Information:</strong>
+        <pre style="margin-top: 0.5rem; white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;">debug_info = {{ debug_info | tojson if debug_info else "NOT SET (get_context did not run)" }}</pre>
     </div>
     {% if debug_info %}
     <div style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; font-size: 0.85rem; text-align: left;">
