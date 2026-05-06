@@ -17,7 +17,8 @@ def get_context(context):
     order = frappe.db.get_value(
         "Bank Pay Order",
         order_name,
-        ["name", "student", "course", "course_title", "status", "amount", "currency"],
+        ["name", "student", "course", "course_title", "status", "amount", "currency",
+         "payhere_status_code", "payhere_status_message", "payhere_method", "payhere_payment_id"],
         as_dict=True,
     )
 

@@ -20,6 +20,22 @@
             Amount: {{ order.currency or "LKR" }} {{ "%.2f"|format(order.amount|float) }}
         </p>
 
+        <!-- Failure Details (for support debugging) -->
+        {% if order.payhere_status_message or order.payhere_method %}
+        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; text-align: left;">
+            <h6 style="color: #666; margin-bottom: 0.5rem;">📋 Payment Details:</h6>
+            {% if order.payhere_method %}
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Method:</strong> {{ order.payhere_method }}</p>
+            {% endif %}
+            {% if order.payhere_status_message %}
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Reason:</strong> {{ order.payhere_status_message }}</p>
+            {% endif %}
+            {% if order.payhere_payment_id %}
+            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Payment ID:</strong> {{ order.payhere_payment_id }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <!-- Support Contact Cards -->
         <div style="margin: 3rem 0;">
             <h5 style="margin-bottom: 2rem; color: #666;">Please contact our support team:</h5>

@@ -37,8 +37,18 @@
             This may take a few moments.
         </p>
         <p class="text-muted small">Order: {{ order.name }}</p>
+        
+        <!-- Payment details for processing state -->
+        {% if order.payhere_method or order.payhere_status_message %}
+        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; margin: 1rem 0; text-align: left; font-size: 0.9rem;">
+            {% if order.payhere_method %}<p style="margin: 0.25rem 0;"><strong>Payment Method:</strong> {{ order.payhere_method }}</p>{% endif %}
+            {% if order.payhere_payment_id %}<p style="margin: 0.25rem 0;"><strong>Payment ID:</strong> {{ order.payhere_payment_id }}</p>{% endif %}
+            {% if order.payhere_status_message %}<p style="margin: 0.25rem 0;"><strong>Status:</strong> {{ order.payhere_status_message }}</p>{% endif %}
+        </div>
+        {% endif %}
+        
         <a href="/bank-pay/my-payments" class="btn btn-outline-primary mt-3">
-            View My Payments
+            📋 View My Payments
         </a>
     </div>
 
